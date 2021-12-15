@@ -43,4 +43,28 @@ CHIP ALU {
 
     PARTS:
    // Put you code here:
+    Mux16(a=x, b=false, sel=zx, out=ozx);
+    Mux16(a=y, b=false, sel=zy, out=ozy);
+
+    Not16(in=ozx, out=onzx);
+    Not16(in=ozy, out=onzy);
+
+    Mux16(a=ozx, b=onzx, sel=nx, out=onx);
+    Mux16(a=ozy, b=onzy, sel=ny, out=ony);
+
+    And16(a=onx, a=ony, out=oand16);
+    Add16(a=onx, b=ony, out=oadd16);
+
+    Mux16(a=oand16, b=oadd16, sel=f, out=of);
+    //Mux16(a=oadd16, b=oand16, sel=f, out=of);
+
+    Not16(in=of, out=onf);
+
+    Mux16(a=of, b=onf, sel=no, out=out, out[0..7]=or1, out[8..15]=or2, out[15]=ng);
+
+    Or8Way(in=or1, out=oor1);
+    Or8Way(in=or2, out=oor2);
+
+    Or(a=oor1, b=oor2, out=oor);
+    Not(in=oor, out=zr);
 }

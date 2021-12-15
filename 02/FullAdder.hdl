@@ -14,4 +14,43 @@ CHIP FullAdder {
 
     PARTS:
     // Put you code here:
+    Not(in=a, out=na);
+    Not(in=b, out=nb);
+    Not(in=c, out=nc);
+
+    // for carry
+    And(a=na, b=b, out=o100);
+    And(a=o100, b=c, out=o10);
+
+    And(a=a, b=nb, out=o101);
+    And(a=o101, b=c, out=o11);
+
+    And(a=a, b=b, out=o102);
+    And(a=o102, b=nc, out=o12);
+
+    And(a=a, b=b, out=o103);
+    And(a=o103, b=c, out=o13);
+
+    Or(a=o10, b=o11, out=c1);
+    Or(a=c1, b=o12, out=c2);
+    Or(a=c2, b=o13, out=carry);
+
+
+    // for sum
+    And(a=na, b=nb, out=o200);
+    And(a=o200, b=c, out=o20);
+
+    And(a=na, b=b, out=o201);
+    And(a=o201, b=nc, out=o21);
+
+    And(a=a, b=nb, out=o202);
+    And(a=o202, b=nc, out=o22);
+
+    And(a=a, b=b, out=o203);
+    And(a=o203, b=c, out=o23);
+
+    Or(a=o20, b=o21, out=s1);
+    Or(a=s1, b=o22, out=s2);
+    Or(a=s2, b=o23, out=sum);
+
 }
