@@ -6,10 +6,9 @@ export class Parser {
     private line = 0; // initial line is 0, so no command there
     private cmd: string = '';
     constructor(private readonly filePath: string) {
-        fs.readFile(filePath, 'utf8', (err, data) => {
-            if (err) throw err;
+        try {
+            const data = fs.readFileSync(filePath, 'utf8');
             const row = data.split(/[\r\n]+/);
-
             // Remove comments & spaces
             row.forEach((line) => {
                 const removeSpace = line.replace(/ /g, '');
@@ -18,8 +17,11 @@ export class Parser {
                     this.asm.push(removeSpace);
                 }
             })
-        })
+        } catch (e) {
+            throw e;
+        }
     }
+
 
     hasMoreCommands(): boolean {
         // Check if line ended
