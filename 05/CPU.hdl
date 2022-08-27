@@ -27,7 +27,7 @@
 
 CHIP CPU {
 
-    IN  inM[16],         // M value input  (M = contents of RAM[A])
+    IN  inM[16],         // M value input  (M=contents of RAM[A])
         instruction[16], // Instruction for execution
         reset;           // Signals whether to re-start the current
                          // program (reset==1) or continue executing
@@ -39,5 +39,54 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-    // Put your code here:
+    // 1st Mux
+    DMux(in=true, sel=instruction[15], a=AOrder, b=COrder);
+    Mux16(a=instruction, b=outALU, sel=COrder, out=fstMuxout);
+
+    // A Register
+    Or(a=AOrder, b=instruction[5], out=AregisterOn);
+    ARegister(in=fstMuxout, load=AregisterOn, out=outAResigter, out[0..14]=addressM);
+
+    // 2ndMux
+    Mux16(a=outAResigter, b=inM, sel=instruction[12], out=outSecMux);
+
+    // D Register
+    And(a=instruction[4], b=COrder, out=DregisterOn);
+    DRegister(in=outALU, load=DregisterOn, out=outDRegister);
+
+    // ALU
+    ALU(x=outDRegister,
+        y=outSecMux,
+        zx=instruction[11],
+        nx=instruction[10],
+        zy=instruction[9],
+        ny=instruction[8],
+        f=instruction[7],
+        no=instruction[6],
+        out=outALU,
+        out=outM,
+        zr=zr,
+        ng=ng
+    );
+
+    And(a=instruction[3], b=instruction[15], out=writeM);
+    And(a=ng, b=instruction[2], out=trueJ1);
+    And(a=zr, b=instruction[1], out=trueJ2);
+    Or(a=ng, b=zr, out=notPositive);
+    Not(in=notPositive, out=positive);
+    And(a=positive, b=instruction[0], out=trueJ3);
+
+    // PC
+    Or(a=trueJ1, b=trueJ2, out=trueJ1and2);
+    Or(a=trueJ1and2, b=trueJ3, out=trueJ1and2and3);
+    And(a=trueJ1and2and3, b=instruction[15], out=loadPC);
+    Not(in=loadPC, out=incPC);
+
+    PC(
+        in=outAResigter,
+        inc=incPC,
+        load=loadPC,
+        reset=reset,
+        out[0..14]=pc
+    );
 }
